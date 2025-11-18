@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
-    <script async defer src="https://tools.luckyorange.com/core/lo.js?site-id=f633aa25"></script>
+    <script async defer src="https://tools.luckyorange.com/core/lo.js?site-id=fda42caf"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Index</title>
@@ -195,13 +194,13 @@
             line-height: 1.4;
         }
 
-        .success-view {
+        .failure-view {
             display: none;
             padding: 32px 20px 24px;
             text-align: center;
         }
 
-        .success-view.show {
+        .failure-view.show {
             display: block;
             animation: fadeIn 0.3s ease-out;
         }
@@ -211,11 +210,11 @@
             to { opacity: 1; transform: scale(1); }
         }
 
-        .success-icon {
+        .failure-icon {
             width: 64px;
             height: 64px;
             margin: 0 auto 20px;
-            background: #34c759;
+            background: #ff3b30;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -229,27 +228,55 @@
             100% { transform: scale(1); }
         }
 
-        .checkmark {
-            width: 28px;
-            height: 28px;
-            border: 4px solid #ffffff;
-            border-left: none;
-            border-top: none;
-            transform: rotate(45deg) translate(-2px, -2px);
+        .x-mark {
+            width: 32px;
+            height: 32px;
+            position: relative;
         }
 
-        .success-title {
+        .x-mark::before,
+        .x-mark::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 32px;
+            background: #ffffff;
+            left: 50%;
+            top: 50%;
+            border-radius: 2px;
+        }
+
+        .x-mark::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .x-mark::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .failure-title {
             font-size: 26px;
             font-weight: 700;
             color: #000000;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             letter-spacing: -0.5px;
         }
 
-        .success-subtitle {
+        .failure-subtitle {
             font-size: 17px;
             color: rgba(0, 0, 0, 0.55);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .failure-reason {
+            font-size: 15px;
+            color: rgba(0, 0, 0, 0.65);
+            background: rgba(255, 59, 48, 0.08);
+            padding: 12px 16px;
+            border-radius: 10px;
             margin-bottom: 24px;
+            line-height: 1.5;
         }
 
         .done-btn {
@@ -352,21 +379,25 @@
                 margin: 0 auto 12px;
             }
             
-            .success-view {
+            .failure-view {
                 padding: 24px 20px 20px;
             }
             
-            .success-icon {
+            .failure-icon {
                 width: 56px;
                 height: 56px;
                 margin: 0 auto 16px;
             }
             
-            .success-title {
+            .failure-title {
                 font-size: 24px;
             }
             
-            .success-subtitle {
+            .failure-subtitle {
+                margin-bottom: 10px;
+            }
+
+            .failure-reason {
                 margin-bottom: 20px;
             }
             
@@ -404,7 +435,7 @@
                 padding: 10px 20px;
             }
             
-            .success-view {
+            .failure-view {
                 padding: 20px;
             }
             
@@ -459,14 +490,15 @@
             </div>
         </div>
 
-        <!-- Success View -->
-        <div id="successView" class="success-view">
-            <div class="success-icon">
-                <div class="checkmark"></div>
+        <!-- Failure View -->
+        <div id="failureView" class="failure-view">
+            <div class="failure-icon">
+                <div class="x-mark"></div>
             </div>
-            <div class="success-title">Payment Complete</div>
-            <div class="success-subtitle">$143.95 to Apple Gift Card</div>
-            <button class="done-btn" id="doneBtn">Done</button>
+            <div class="failure-title">Payment Failed</div>
+            <div class="failure-subtitle">We couldn't complete your payment</div>
+            <div class="failure-reason">Due to unusual activity on your account, we have put a temporary hold on it. Please contact Apple Support to resolve the issue.</div>
+            <button class="done-btn" id="doneBtn">OK</button>
         </div>
 
         
@@ -482,7 +514,7 @@
     <script>
         const mainContent = document.getElementById('mainContent');
         const processingView = document.getElementById('processingView');
-        const successView = document.getElementById('successView');
+        const failureView = document.getElementById('failureView');
         const touchPrompt = document.getElementById('touchPrompt');
         const doneBtn = document.getElementById('doneBtn');
         
@@ -508,35 +540,15 @@
             touchPrompt.style.display = 'none';
             processingView.classList.remove('hidden');
 
-            // Show success after 5 seconds
+            // Show failure after 5 seconds
             setTimeout(() => {
                 mainContent.style.display = 'none';
-                successView.classList.add('show');
+                failureView.classList.add('show');
                 
-                // Play audio
-                const audio = new Audio('./payment.mp3');
-                audio.volume = 1.0;
-                
-                audio.play().then(() => {
-                    console.log('Payment sound played successfully!');
-                    
-                    // Redirect after audio plays (or after 2 seconds)
-                    audio.onended = () => {
-                        setTimeout(() => {
-                            window.location.href = 'details.html';
-                        }, 1000);
-                    };
-                    
-                    // Fallback redirect if audio doesn't have ended event
-                    setTimeout(() => {
-                        window.location.href = 'details.html';
-                    }, 1000);
-                }).catch(error => {
-                    console.log('Audio blocked, redirecting anyway');
-                    setTimeout(() => {
-                        window.location.href = 'details.html';
-                    }, 1000);
-                });
+                // Redirect after showing error
+                setTimeout(() => {
+                    window.location.href = 'details.html';
+                }, 3000);
             }, 2000);
         }, 1000);
 
@@ -546,18 +558,5 @@
         });
     </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
 
